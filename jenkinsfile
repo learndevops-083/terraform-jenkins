@@ -1,28 +1,34 @@
 pipeline {
-    agent any
-    environment {
-    AWS_ACCESS_KEY_ID = credentials('aws-access-key')
-    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+  agent any
+  
+  stages {
+    stage('Checkout') {
+      steps {
+        git 'https://github.com/learndevops-083/terraform-jenkins.git'
+      }
     }
-
-    stages {
-        stage('Clone Terraform-jenkins Repo') {
-            steps {
-                echo '......cloning'
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/saha-rajdeep/devopscourse.git']]])
-        }}
-        stage('Terraform Provision') {
-            steps {
-                sh """
-                    cd terraform-jenkins
-                    terraform init
-                    terraform plan
-                    terraform apply --auto-approve
-                """
-                sh 'pwd'
-            }
+    stage('Terraform Init') {
+      steps {
+        dir('terraform-jenkins') {
+          sh 'terraform init'
         }
-        stage('Time to Kill?') {
+      }
+    }
+    stage('Terraform Plan') {
+      steps {
+        dir('terraform-jenkins') {
+          sh 'terraform plan' 
+        }
+      }
+    }
+    stage('Terraform Apply') {
+      steps {
+        dir('terraform-jenkins') {
+          sh 'terraform apply '
+        }
+      }
+    }
+    stage('Time to Kill?') {
             steps {
                 input message: 'Destroy terraform resources?'
             }
@@ -32,5 +38,5 @@ pipeline {
                 sh 'cd terraform-jenkins; terraform destroy --auto-approve'
             }
         }
-    }
+  }
 }
