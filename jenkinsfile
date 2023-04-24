@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Terraform-jenkins Repo') {
+            steps {
+                echo '......cloning'
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/saha-rajdeep/devopscourse.git']]])
+        }}
+        stage('Terraform Provision') {
+            steps {
+                sh """
+                    cd terraform-jenkins
+                    terraform init
+                    terraform plan
+                    terraform apply --auto-approve
+                """
+                sh 'pwd'
+            }
+        }
+        stage('Time to Kill?') {
+            steps {
+                input message: 'Destroy terraform resources?'
+            }
+        }
+        stage('Search and Destroy') {
+            steps {
+                sh 'cd terraform-jenkins; terraform destroy --auto-approve'
+            }
+        }
+    }
+}
