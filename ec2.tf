@@ -5,7 +5,7 @@ provider "aws" {
 resource "aws_vpc" "demotf_vpc" {
  cidr_block = "10.0.0.0/16"
    tags = {
-   Name = "demotf-jenkins-vpc"
+   Name = "demotf-jenkins2-vpc"
  }
 }
 resource "aws_internet_gateway" "demotf_igw" {
@@ -61,7 +61,7 @@ resource "aws_instance" "demo_instance" {
  associate_public_ip_address = true
 
  tags = {
-   Name = "demotf-jenkins-instance"
+   Name = "demotf-jenkins2-instance"
  }
 }
 
